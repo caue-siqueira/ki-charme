@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { getFeatured, getNewest, getOnSale, getStoreSettings } from "@/data/catalog";
+import { getFeatured, getNewest, getOnSale } from "@/data/catalog";
+import { useStoreSettings } from "@/data/store-settings";
 import { ProductGrid } from "@/components/site/ProductCard";
 
 export const Route = createFileRoute("/")({
@@ -56,7 +57,7 @@ const seeAll = (
 );
 
 function Index() {
-  const s = getStoreSettings();
+  const s = useStoreSettings();
   const sale = getOnSale();
   return (
     <>

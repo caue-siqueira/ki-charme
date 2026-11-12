@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { getStoreSettings } from "@/data/catalog";
+import { useStoreSettings } from "@/data/store-settings";
 import { WhatsAppButton } from "@/components/site/WhatsAppButton";
 
 export const Route = createFileRoute("/sobre")({
@@ -15,7 +15,7 @@ export const Route = createFileRoute("/sobre")({
 });
 
 function Sobre() {
-  const s = getStoreSettings();
+  const s = useStoreSettings();
   const pending = "A ser informado pela loja";
   return (
     <div className="container-site max-w-3xl py-14">

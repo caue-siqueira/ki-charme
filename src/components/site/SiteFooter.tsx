@@ -1,11 +1,11 @@
 import { Link } from "@tanstack/react-router";
-import { getStoreSettings } from "@/data/catalog";
+import { useStoreSettings } from "@/data/store-settings";
 import { openWhatsApp } from "./WhatsAppButton";
 
 const pending = "A ser informado pela loja";
 
 export function SiteFooter() {
-  const s = getStoreSettings();
+  const s = useStoreSettings();
   const rows: [string, string | undefined][] = [
     ["Endereço", s.address],
     ["Horário", s.hours],
@@ -20,7 +20,7 @@ export function SiteFooter() {
           <p className="eyebrow mt-1">{s.tagline}</p>
           <div className="mt-6 flex flex-col items-start gap-2">
             <button
-              onClick={() => openWhatsApp(`Olá! Vim pelo site da ${s.name}.`)}
+              onClick={() => openWhatsApp(`Olá! Vim pelo site da ${s.name}.`, s.whatsappNumber)}
               className="min-h-11 font-semibold text-primary hover:underline"
             >
               WhatsApp

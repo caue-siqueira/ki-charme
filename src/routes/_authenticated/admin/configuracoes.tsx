@@ -62,7 +62,7 @@ function AdminSettings() {
     setBusy(true);
     try {
       await adminUpdateSettings({ data: form });
-      queryClient.invalidateQueries({ queryKey: ["catalog"] });
+      await queryClient.invalidateQueries({ queryKey: ["catalog"] });
       queryClient.invalidateQueries({ queryKey: ["admin", "settings"] });
       toast.success("Configurações salvas.");
     } catch (err) {

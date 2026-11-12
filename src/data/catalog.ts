@@ -1,11 +1,6 @@
-// Single data access layer. Components never import demo arrays directly.
-// Stage 2: replace these bodies with database queries; signatures stay.
-import { demoCategories, demoProducts, demoSettings } from "./demo-data";
-import type { CategoryGroup, Product, StoreSettings } from "@/types/catalog";
-
-export function getStoreSettings(): StoreSettings {
-  return demoSettings;
-}
+// Produtos e categorias demonstrativos. Configurações reais ficam em store-settings.ts.
+import { demoCategories, demoProducts } from "./demo-data";
+import type { CategoryGroup, Product } from "@/types/catalog";
 
 export function getCategories(): CategoryGroup[] {
   return demoCategories

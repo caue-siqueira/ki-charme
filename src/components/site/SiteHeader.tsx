@@ -1,7 +1,8 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { Menu, Search, ShoppingBag, ChevronDown } from "lucide-react";
 import { useState, type FormEvent } from "react";
-import { getCategories, getStoreSettings } from "@/data/catalog";
+import { getCategories } from "@/data/catalog";
+import { useStoreSettings } from "@/data/store-settings";
 import { useCart } from "@/lib/cart";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import {
@@ -63,10 +64,9 @@ function CartLink() {
   );
 }
 
-const waGreeting = () =>
-  `Olá! Vim pelo site da ${getStoreSettings().name} e gostaria de atendimento.`;
-
 export function SiteHeader() {
+  const s = useStoreSettings();
+  const waGreeting = () => `Olá! Vim pelo site da ${s.name} e gostaria de atendimento.`;
   const groups = getCategories();
   const [open, setOpen] = useState(false);
   const [mega, setMega] = useState(false);
@@ -128,7 +128,7 @@ export function SiteHeader() {
                 Sobre a loja
               </Link>
               <button
-                onClick={() => openWhatsApp(waGreeting())}
+                onClick={() => openWhatsApp(waGreeting(), s.whatsappNumber)}
                 className="mt-4 w-full rounded-md bg-primary py-3 font-semibold text-primary-foreground"
               >
                 Falar no WhatsApp
@@ -215,7 +215,7 @@ export function SiteHeader() {
             <SearchBox />
           </div>
           <button
-            onClick={() => openWhatsApp(waGreeting())}
+            onClick={() => openWhatsApp(waGreeting(), s.whatsappNumber)}
             className="hidden min-h-11 rounded-full border border-primary px-4 text-sm font-semibold text-primary hover:bg-accent sm:block"
           >
             WhatsApp

@@ -1,3 +1,6 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { storeSettingsQueryOptions } from "@/data/store-settings";
+import { DEFAULT_SETTINGS } from "@/data/mappers";
 import { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import {
@@ -29,12 +32,16 @@ afterEach(async () => {
 });
 
 async function renderHeader() {
+  const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  queryClient.setQueryData(storeSettingsQueryOptions.queryKey, DEFAULT_SETTINGS);
   const rootRoute = createRootRoute({
     component: () => (
-      <CartProvider>
-        <SiteHeader />
-        <Outlet />
-      </CartProvider>
+      <QueryClientProvider client={queryClient}>
+        <CartProvider>
+          <SiteHeader />
+          <Outlet />
+        </CartProvider>
+      </QueryClientProvider>
     ),
   });
   const paths = ["/", "/catalogo", "/sacola", "/sobre", "/categoria/$slug"] as const;

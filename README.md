@@ -71,6 +71,10 @@ Remove-Item Env:NITRO_PRESET
 
 Documentação: [TanStack Start na Vercel](https://vercel.com/docs/frameworks/full-stack/tanstack-start) e [Supabase com React](https://supabase.com/docs/guides/getting-started/quickstarts/reactjs).
 
+## Configurações públicas da loja
+
+WhatsApp, nome, Instagram, endereço e demais informações de contato são lidos de public.store_settings com a chave pública. Ao salvar as configurações no painel, a consulta pública é atualizada. Não é necessário configurar VITE_WHATSAPP_NUMBER ou fazer deploy ao trocar o número.
+
 ## Estado atual do catálogo
 
 O painel administrativo usa o Supabase. A vitrine pública em src/data/catalog.ts ainda importa demo-data.ts. Por isso, salvar uma peça no painel ainda não a publica automaticamente na vitrine desta versão. Para isso, falta adaptar o carregamento público para buscar o catálogo do banco e alimentar os componentes; não se trata de uma configuração da Vercel.
