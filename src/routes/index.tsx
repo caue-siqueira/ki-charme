@@ -1,7 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { getFeatured, getNewest, getOnSale } from "@/data/catalog";
 import { usePublicCatalog } from "@/data/public-catalog";
-import { ProductImage } from "@/components/site/ProductImage";
 import { useStoreSettings } from "@/data/store-settings";
 import { ProductGrid } from "@/components/site/ProductCard";
 
@@ -64,7 +63,6 @@ function Index() {
   const sale = getOnSale(products);
   const newest = getNewest(products, 4);
   const featured = getFeatured(products, 4);
-  const heroProduct = products.find((p) => p.images.length > 0);
   return (
     <>
       <section className="container-site grid items-center gap-8 py-10 md:grid-cols-2 md:py-16">
@@ -83,17 +81,11 @@ function Index() {
             Conhecer coleção
           </Link>
         </div>
-        {heroProduct ? (
-          <ProductImage
-            product={heroProduct}
-            className="order-1 aspect-[16/9] rounded-lg md:order-2 md:aspect-[4/5]"
-          />
-        ) : (
-          <div
-            className="order-1 aspect-[16/9] rounded-lg bg-secondary md:order-2 md:aspect-[4/5]"
-            aria-hidden
-          />
-        )}
+        {/* Espaço reservado para a imagem própria do banner da loja. */}
+        <div
+          className="order-1 aspect-[16/9] rounded-lg bg-secondary md:order-2 md:aspect-[4/5]"
+          aria-hidden
+        />
       </section>
 
       {products.length === 0 && (
