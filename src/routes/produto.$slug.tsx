@@ -3,6 +3,8 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { ShoppingBag } from "lucide-react";
 import { categoryName, effectivePrice, getProductBySlug, getRelated } from "@/data/catalog";
+import { publicCatalogQueryOptions, usePublicCatalog } from "@/data/public-catalog";
+import type { Product, CategoryGroup } from "@/types/catalog";
 import { useCart } from "@/lib/cart";
 import { productMessage } from "@/lib/whatsapp";
 import { ProductImage } from "@/components/site/ProductImage";
@@ -11,8 +13,9 @@ import { ProductGrid } from "@/components/site/ProductCard";
 import { WhatsAppButton } from "@/components/site/WhatsAppButton";
 
 export const Route = createFileRoute("/produto/$slug")({
-  loader: ({ params }) => {
-    const p = getProductBySlug(params.slug);
+  loader: async ({ params, context }) => {
+    const { products } = await context.queryClient.ensureQueryData(publicCatalogQueryOptions);
+    const p = getProductBySlug(params.slug, products);
     if (!p) throw notFound();
     return { name: p.name, description: p.description };
   },
@@ -44,7 +47,21 @@ export const Route = createFileRoute("/produto/$slug")({
 
 function ProductPage() {
   const { slug } = Route.useParams();
-  const p = getProductBySlug(slug)!;
+  const { products, categories } = usePublicCatalog();
+  const p = getProductBySlug(slug, products);
+  if (!p) return <div className="container-site py-20">Peça não encontrada.</div>;
+  return <ProductDetails key={p.id} product={p} products={products} categories={categories} />;
+}
+
+function ProductDetails({
+  product: p,
+  products,
+  categories,
+}: {
+  product: Product;
+  products: Product[];
+  categories: CategoryGroup[];
+}) {
   const cart = useCart();
   const [size, setSize] = useState<string | undefined>(
     p.sizes.length === 1 ? p.sizes[0] : undefined,
@@ -95,7 +112,7 @@ function ProductPage() {
         <Link to="/catalogo" className="hover:underline">
           Catálogo
         </Link>{" "}
-        / <span>{categoryName(p.subcategoryId)}</span>
+        / <span>{categoryName(p.subcategoryId, categories)}</span>
       </nav>
       <div className="grid gap-10 md:grid-cols-2">
         <div>
@@ -117,7 +134,7 @@ function ProductPage() {
         </div>
         <div>
           <p className="eyebrow">
-            {categoryName(p.groupId)} · {categoryName(p.subcategoryId)}
+            {categoryName(p.groupId, categories)} · {categoryName(p.subcategoryId, categories)}
           </p>
           <h1 className="mt-2 text-4xl md:text-5xl">{p.name}</h1>
           <div className="mt-4">
@@ -215,10 +232,10 @@ function ProductPage() {
           )}
         </div>
       </div>
-      {getRelated(p).length > 0 && (
+      {getRelated(p, products).length > 0 && (
         <section className="mt-20">
           <h2 className="mb-8 text-3xl">Você também pode gostar</h2>
-          <ProductGrid products={getRelated(p)} />
+          <ProductGrid products={getRelated(p, products)} />
         </section>
       )}
     </div>

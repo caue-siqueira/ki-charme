@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { Menu, Search, ShoppingBag, ChevronDown } from "lucide-react";
 import { useState, type FormEvent } from "react";
-import { getCategories } from "@/data/catalog";
+import { usePublicCatalog } from "@/data/public-catalog";
 import { useStoreSettings } from "@/data/store-settings";
 import { useCart } from "@/lib/cart";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
@@ -67,7 +67,7 @@ function CartLink() {
 export function SiteHeader() {
   const s = useStoreSettings();
   const waGreeting = () => `Olá! Vim pelo site da ${s.name} e gostaria de atendimento.`;
-  const groups = getCategories();
+  const { categories: groups } = usePublicCatalog();
   const [open, setOpen] = useState(false);
   const [mega, setMega] = useState(false);
   return (

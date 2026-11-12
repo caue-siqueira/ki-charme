@@ -1,3 +1,5 @@
+import { publicCatalogQueryOptions } from "@/data/public-catalog";
+import { categoryFixture } from "./catalog-fixtures";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { storeSettingsQueryOptions } from "@/data/store-settings";
 import { DEFAULT_SETTINGS } from "@/data/mappers";
@@ -34,6 +36,10 @@ afterEach(async () => {
 async function renderHeader() {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   queryClient.setQueryData(storeSettingsQueryOptions.queryKey, DEFAULT_SETTINGS);
+  queryClient.setQueryData(publicCatalogQueryOptions.queryKey, {
+    products: [],
+    categories: [categoryFixture],
+  });
   const rootRoute = createRootRoute({
     component: () => (
       <QueryClientProvider client={queryClient}>

@@ -1,11 +1,13 @@
 import { createFileRoute, notFound, Link } from "@tanstack/react-router";
 import { CatalogView, parseCatalogSearch, type CatalogSearch } from "@/components/site/CatalogView";
+import { publicCatalogQueryOptions, usePublicCatalog } from "@/data/public-catalog";
 import { findCategoryBySlug } from "@/data/catalog";
 
 export const Route = createFileRoute("/categoria/$slug")({
   validateSearch: (s: Record<string, unknown>): CatalogSearch => parseCatalogSearch(s),
-  loader: ({ params }) => {
-    const found = findCategoryBySlug(params.slug);
+  loader: async ({ params, context }) => {
+    const { categories } = await context.queryClient.ensureQueryData(publicCatalogQueryOptions);
+    const found = findCategoryBySlug(params.slug, categories);
     if (!found) throw notFound();
     return { title: found.sub?.name ?? found.group.name, groupName: found.group.name };
   },
@@ -43,7 +45,9 @@ function Categoria() {
   const { slug } = Route.useParams();
   const search = Route.useSearch();
   const navigate = Route.useNavigate();
-  const found = findCategoryBySlug(slug)!;
+  const { categories } = usePublicCatalog();
+  const found = findCategoryBySlug(slug, categories);
+  if (!found) return <div className="container-site py-20">Categoria não encontrada.</div>;
   return (
     <CatalogView
       key={slug}

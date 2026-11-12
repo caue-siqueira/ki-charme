@@ -1,5 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { getFeatured, getNewest, getOnSale } from "@/data/catalog";
+import { usePublicCatalog } from "@/data/public-catalog";
+import { ProductImage } from "@/components/site/ProductImage";
 import { useStoreSettings } from "@/data/store-settings";
 import { ProductGrid } from "@/components/site/ProductCard";
 
@@ -58,7 +60,11 @@ const seeAll = (
 
 function Index() {
   const s = useStoreSettings();
-  const sale = getOnSale();
+  const { products } = usePublicCatalog();
+  const sale = getOnSale(products);
+  const newest = getNewest(products, 4);
+  const featured = getFeatured(products, 4);
+  const heroProduct = products.find((p) => p.images.length > 0);
   return (
     <>
       <section className="container-site grid items-center gap-8 py-10 md:grid-cols-2 md:py-16">
@@ -77,19 +83,37 @@ function Index() {
             Conhecer coleção
           </Link>
         </div>
-        <div
-          className="order-1 aspect-[16/9] w-full md:aspect-[4/5] rounded-lg bg-secondary md:order-2"
-          role="img"
-          aria-label="Espaço reservado para foto da coleção"
-        />
+        {heroProduct ? (
+          <ProductImage
+            product={heroProduct}
+            className="order-1 aspect-[16/9] rounded-lg md:order-2 md:aspect-[4/5]"
+          />
+        ) : (
+          <div
+            className="order-1 aspect-[16/9] rounded-lg bg-secondary md:order-2 md:aspect-[4/5]"
+            aria-hidden
+          />
+        )}
       </section>
 
-      <Section eyebrow="Acabou de chegar" title="Novidades" link={seeAll}>
-        <ProductGrid products={getNewest(4)} />
-      </Section>
-      <Section eyebrow="Seleção da loja" title="Destaques" link={seeAll}>
-        <ProductGrid products={getFeatured(4)} />
-      </Section>
+      {products.length === 0 && (
+        <section className="container-site py-14 text-center">
+          <h2 className="text-3xl">Novas peças em breve</h2>
+          <p className="mt-3 text-muted-foreground">
+            Estamos preparando nossa coleção. Volte em breve para conferir.
+          </p>
+        </section>
+      )}
+      {newest.length > 0 && (
+        <Section eyebrow="Acabou de chegar" title="Novidades" link={seeAll}>
+          <ProductGrid products={newest} />
+        </Section>
+      )}
+      {featured.length > 0 && (
+        <Section eyebrow="Seleção da loja" title="Destaques" link={seeAll}>
+          <ProductGrid products={featured} />
+        </Section>
+      )}
       {sale.length > 0 && (
         <Section eyebrow="Preços especiais" title="Promoções">
           <ProductGrid products={sale} />

@@ -45,7 +45,6 @@ export interface Product {
   featured: boolean;
   createdAt: string;
   measurements?: string | undefined;
-  isDemo?: boolean | undefined;
 }
 
 export interface StoreSettings {

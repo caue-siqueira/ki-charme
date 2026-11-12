@@ -1,6 +1,7 @@
 import { SlidersHorizontal, X } from "lucide-react";
 import { useMemo, useState } from "react";
-import { filterProducts, getCategories, getProducts, type ProductFilters } from "@/data/catalog";
+import { filterProducts, type ProductFilters } from "@/data/catalog";
+import { usePublicCatalog } from "@/data/public-catalog";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { ProductGrid } from "./ProductCard";
 
@@ -45,8 +46,7 @@ export function CatalogView({
   fixedSub?: string | undefined;
   onChange: (next: CatalogSearch) => void;
 }) {
-  const groups = getCategories();
-  const all = getProducts();
+  const { categories: groups, products: all } = usePublicCatalog();
   const group = fixedGroup ?? search.cat;
   const sub = fixedSub ?? search.sub;
   const scope = useMemo(() => filterProducts(all, { group, sub }), [all, group, sub]);

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { waLink, productMessage } from "@/lib/whatsapp";
-import { filterProducts, getProducts } from "@/data/catalog";
+import { filterProducts } from "@/data/catalog";
+import { makeProduct } from "./catalog-fixtures";
 
 describe("whatsapp", () => {
   it("returns no link while number is not configured", () => {
@@ -20,7 +21,13 @@ describe("whatsapp", () => {
 
 describe("catalog", () => {
   it("sorts by lowest effective price", () => {
-    const r = filterProducts(getProducts(), { sort: "menor" });
-    expect(r[0]?.slug).toBe("brinco-argola-dourada");
+    const r = filterProducts(
+      [
+        makeProduct({ id: "normal", price: 200 }),
+        makeProduct({ id: "promo", price: 300, promoPrice: 50 }),
+      ],
+      { sort: "menor" },
+    );
+    expect(r[0]?.id).toBe("promo");
   });
 });

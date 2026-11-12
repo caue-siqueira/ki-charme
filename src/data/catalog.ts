@@ -1,19 +1,7 @@
-// Produtos e categorias demonstrativos. Configurações reais ficam em store-settings.ts.
-import { demoCategories, demoProducts } from "./demo-data";
 import type { CategoryGroup, Product } from "@/types/catalog";
 
-export function getCategories(): CategoryGroup[] {
-  return demoCategories
-    .filter((g) => g.visible)
-    .sort((a, b) => a.order - b.order)
-    .map((g) => ({
-      ...g,
-      subcategories: g.subcategories.filter((s) => s.visible).sort((a, b) => a.order - b.order),
-    }));
-}
-
-export function findCategoryBySlug(slug: string) {
-  for (const group of getCategories()) {
+export function findCategoryBySlug(slug: string, categories: CategoryGroup[]) {
+  for (const group of categories) {
     if (group.slug === slug) return { group, sub: undefined };
     const sub = group.subcategories.find((s) => s.slug === slug);
     if (sub) return { group, sub };
@@ -21,44 +9,36 @@ export function findCategoryBySlug(slug: string) {
   return undefined;
 }
 
-export function getProducts(): Product[] {
-  return demoProducts.filter((p) => p.status !== "hidden");
-}
-
-export function getProductBySlug(slug: string) {
-  return getProducts().find((p) => p.slug === slug);
+export function getProductBySlug(slug: string, products: Product[]) {
+  return products.find((p) => p.slug === slug);
 }
 
 export const effectivePrice = (p: Pick<Product, "price" | "promoPrice">) =>
   p.promoPrice != null && p.promoPrice < p.price ? p.promoPrice : p.price;
-
 export const isOnSale = (p: Product) => p.promoPrice != null && p.promoPrice < p.price;
+export const isNew = (p: Product, now = new Date()) => {
+  const age = (now.getTime() - new Date(p.createdAt).getTime()) / 86400000;
+  return age >= 0 && age <= 30;
+};
+export const getNewest = (products: Product[], n = 4) =>
+  [...products].sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, n);
+export const getFeatured = (products: Product[], n = 4) =>
+  products.filter((p) => p.featured).slice(0, n);
+export const getOnSale = (products: Product[]) => products.filter(isOnSale);
 
-const NEW_DAYS = 30;
-export const isNew = (p: Product, now = new Date()) =>
-  (now.getTime() - new Date(p.createdAt).getTime()) / 86400000 <= NEW_DAYS;
-
-export const getNewest = (n = 4) =>
-  [...getProducts()].sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, n);
-export const getFeatured = (n = 4) =>
-  getProducts()
-    .filter((p) => p.featured)
-    .slice(0, n);
-export const getOnSale = () => getProducts().filter(isOnSale);
-
-export function getRelated(p: Product, n = 4) {
-  const same = getProducts().filter((x) => x.id !== p.id && x.subcategoryId === p.subcategoryId);
-  const group = getProducts().filter(
+export function getRelated(p: Product, products: Product[], n = 4) {
+  const same = products.filter((x) => x.id !== p.id && x.subcategoryId === p.subcategoryId);
+  const group = products.filter(
     (x) => x.id !== p.id && x.groupId === p.groupId && !same.includes(x),
   );
   return [...same, ...group].slice(0, n);
 }
 
-export function categoryName(id: string) {
-  for (const g of getCategories()) {
+export function categoryName(id: string, categories: CategoryGroup[]) {
+  for (const g of categories) {
     if (g.id === id) return g.name;
-    const s = g.subcategories.find((s) => s.id === id);
-    if (s) return s.name;
+    const sub = g.subcategories.find((s) => s.id === id);
+    if (sub) return sub.name;
   }
   return "";
 }

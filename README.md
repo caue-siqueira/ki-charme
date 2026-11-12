@@ -75,6 +75,10 @@ Documentação: [TanStack Start na Vercel](https://vercel.com/docs/frameworks/fu
 
 WhatsApp, nome, Instagram, endereço e demais informações de contato são lidos de public.store_settings com a chave pública. Ao salvar as configurações no painel, a consulta pública é atualizada. Não é necessário configurar VITE_WHATSAPP_NUMBER ou fazer deploy ao trocar o número.
 
-## Estado atual do catálogo
+## Catálogo e fotos
 
-O painel administrativo usa o Supabase. A vitrine pública em src/data/catalog.ts ainda importa demo-data.ts. Por isso, salvar uma peça no painel ainda não a publica automaticamente na vitrine desta versão. Para isso, falta adaptar o carregamento público para buscar o catálogo do banco e alimentar os componentes; não se trata de uma configuração da Vercel.
+A vitrine lê apenas produtos publicados/esgotados e categorias ativas do Supabase. Produtos ocultos não aparecem para visitantes. Não há fallback para produtos de demonstração. As mudanças salvas no painel atualizam o catálogo; ao voltar à aba, os dados também são consultados novamente.
+
+As fotos usam o bucket público product-photos. A correção está em supabase/migrations/20261112210000_public_product_photos.sql: cria o bucket se necessário ou o torna público, sem apagar arquivos. Execute essa migração no SQL Editor do mesmo projeto Supabase caso o endereço público retorne "Bucket not found". Se o arquivo foi apagado, envie a foto novamente pelo painel.
+
+Não reaplique as migrações iniciais em um banco que já está configurado. Somente a nova migração de fotos é necessária nesse caso.

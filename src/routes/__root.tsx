@@ -1,4 +1,9 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import {
+  QueryClient,
+  QueryClientProvider,
+  dehydrate,
+  HydrationBoundary,
+} from "@tanstack/react-query";
 import {
   Outlet,
   Link,
@@ -9,6 +14,8 @@ import {
   type ErrorComponentProps,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
+
+import { publicCatalogQueryOptions } from "@/data/public-catalog";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
@@ -79,6 +86,10 @@ function ErrorComponent({ error, reset }: ErrorComponentProps) {
 }
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
+  loader: async ({ context }) => {
+    await context.queryClient.ensureQueryData(publicCatalogQueryOptions);
+    return { dehydratedState: dehydrate(context.queryClient) };
+  },
   head: () => ({
     // Replace these placeholders with the app's name and description when first building the app.
     // Each content route, / included, must still set its own head(). Never add og:image or
@@ -136,19 +147,22 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const { dehydratedState } = Route.useLoaderData();
 
   return (
     <QueryClientProvider client={queryClient}>
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <CartProvider>
-        <WhatsAppSetupNotice />
-        <SiteHeader />
-        <main id="conteudo" className="min-h-[60vh]">
-          <Outlet />
-        </main>
-        <SiteFooter />
-        <Toaster position="top-center" />
-      </CartProvider>
+      <HydrationBoundary state={dehydratedState}>
+        <CartProvider>
+          <WhatsAppSetupNotice />
+          <SiteHeader />
+          <main id="conteudo" className="min-h-[60vh]">
+            <Outlet />
+          </main>
+          <SiteFooter />
+          <Toaster position="top-center" />
+        </CartProvider>
+      </HydrationBoundary>
     </QueryClientProvider>
   );
 }
