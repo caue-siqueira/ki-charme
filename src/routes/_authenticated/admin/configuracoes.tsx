@@ -33,7 +33,6 @@ const EMPTY = {
   whatsappNumber: "",
   instagramUrl: "",
   address: "",
-  openingHours: "",
   pickupInformation: "",
   exchangePolicy: "",
   about: "",
@@ -45,7 +44,6 @@ function AdminSettings() {
   const [form, setForm] = useState(EMPTY);
   const [busy, setBusy] = useState(false);
   const [hours, setHours] = useState(defaultOpeningHours);
-  const [hoursChanged, setHoursChanged] = useState(false);
   const [legacyHours, setLegacyHours] = useState("");
 
   useEffect(() => {
@@ -53,7 +51,6 @@ function AdminSettings() {
     if (!s) return;
     const parsed = parseOpeningHours(s.opening_hours ?? "");
     setHours(parsed ?? defaultOpeningHours());
-    setHoursChanged(false);
     setLegacyHours(!parsed ? (s.opening_hours ?? "") : "");
     setForm({
       storeName: s.store_name,
@@ -61,7 +58,6 @@ function AdminSettings() {
       whatsappNumber: s.whatsapp_number,
       instagramUrl: s.instagram_url ?? "",
       address: s.address ?? "",
-      openingHours: s.opening_hours ?? "",
       pickupInformation: s.pickup_information ?? "",
       exchangePolicy: s.exchange_policy ?? "",
       about: s.about ?? "",
@@ -74,7 +70,7 @@ function AdminSettings() {
   const save = async (e: FormEvent) => {
     e.preventDefault();
     const hoursError = validateOpeningHours(hours);
-    if ((!legacyHours || hoursChanged) && hoursError) {
+    if (hoursError) {
       toast.error(hoursError);
       return;
     }
@@ -83,11 +79,11 @@ function AdminSettings() {
       await adminUpdateSettings({
         data: {
           ...form,
-          openingHours: legacyHours && !hoursChanged ? legacyHours : formatOpeningHours(hours),
+          openingHours: formatOpeningHours(hours),
         },
       });
       await queryClient.invalidateQueries({ queryKey: ["catalog"] });
-      queryClient.invalidateQueries({ queryKey: ["admin", "settings"] });
+      await queryClient.invalidateQueries({ queryKey: ["admin", "settings"] });
       toast.success("Configurações salvas.");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Não foi possível salvar.");
@@ -156,29 +152,16 @@ function AdminSettings() {
           <span className={labelCls}>Endereço (opcional)</span>
           <input className={field} value={form.address} onChange={set("address")} />
         </label>
-        {legacyHours && !hoursChanged && (
+        {legacyHours && (
           <div className="rounded-md bg-secondary p-3 text-sm">
-            <p className="whitespace-pre-line">Horário salvo: {legacyHours}</p>
+            <p className="whitespace-pre-line">Horário anterior: {legacyHours}</p>
             <p className="mt-2">
-              Confira os horários sugeridos abaixo. Para substituir o horário atual, use o botão ou
-              altere algum dia e salve as configurações.
+              Confira os horários de cada dia abaixo. Ao salvar as configurações, eles substituirão
+              o horário anterior no site.
             </p>
-            <button
-              type="button"
-              onClick={() => setHoursChanged(true)}
-              className="mt-2 min-h-11 font-semibold text-primary underline"
-            >
-              Usar horários por dia
-            </button>
           </div>
         )}
-        <OpeningHoursFields
-          days={hours}
-          onChange={(next) => {
-            setHours(next);
-            setHoursChanged(true);
-          }}
-        />
+        <OpeningHoursFields days={hours} onChange={setHours} />
         <label className="block">
           <span className={labelCls}>Como funciona a retirada (opcional)</span>
           <textarea

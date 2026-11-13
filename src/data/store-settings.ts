@@ -12,7 +12,7 @@ export const storeSettingsQueryOptions = queryOptions({
     const endpoint = new URL("/rest/v1/store_settings", url);
     endpoint.searchParams.set("select", "*");
     endpoint.searchParams.set("id", "eq.00000000-0000-0000-0000-000000000001");
-    const response = await fetch(endpoint, { headers: { apikey: key }, signal });
+    const response = await fetch(endpoint, { headers: { apikey: key }, signal, cache: "no-store" });
     if (!response.ok) throw new Error("Não foi possível carregar as informações da loja.");
     const rows: SettingsRow[] = await response.json();
     if (!Array.isArray(rows)) throw new Error("As informações da loja são inválidas.");
