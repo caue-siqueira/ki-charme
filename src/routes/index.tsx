@@ -3,6 +3,7 @@ import { getFeatured, getNewest, getOnSale } from "@/data/catalog";
 import { usePublicCatalog } from "@/data/public-catalog";
 import { useStoreSettings } from "@/data/store-settings";
 import { ProductGrid } from "@/components/site/ProductCard";
+import inicioImage from "@/img/inicio.jpg";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -81,10 +82,11 @@ function Index() {
             Conhecer coleção
           </Link>
         </div>
-        {/* Espaço reservado para a imagem própria do banner da loja. */}
-        <div
-          className="order-1 aspect-[16/9] rounded-lg bg-secondary md:order-2 md:aspect-[4/5]"
-          aria-hidden
+        <img
+          src={inicioImage}
+          alt="Mulher com sacola da Ki Charme em frente a uma loja"
+          className="order-1 h-auto w-full rounded-lg md:order-2"
+          fetchPriority="high"
         />
       </section>
 
