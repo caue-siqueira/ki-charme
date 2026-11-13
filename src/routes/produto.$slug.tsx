@@ -7,7 +7,7 @@ import { publicCatalogQueryOptions, usePublicCatalog } from "@/data/public-catal
 import type { Product, CategoryGroup } from "@/types/catalog";
 import { useCart } from "@/lib/cart";
 import { productMessage } from "@/lib/whatsapp";
-import { ProductImage } from "@/components/site/ProductImage";
+import { ProductGallery } from "@/components/site/ProductGallery";
 import { Price } from "@/components/site/Price";
 import { ProductGrid } from "@/components/site/ProductCard";
 import { WhatsAppButton } from "@/components/site/WhatsAppButton";
@@ -69,7 +69,6 @@ function ProductDetails({
   const [color, setColor] = useState<string | undefined>(
     p.colors.length === 1 ? p.colors[0]!.name : undefined,
   );
-  const [active, setActive] = useState(0);
   const [warn, setWarn] = useState(false);
   const soldOut = p.status === "sold_out";
   const ready = () => {
@@ -100,7 +99,6 @@ function ProductDetails({
       },
     });
   };
-  const thumbs = Math.max(p.images.length, 1);
 
   return (
     <div className="container-site py-8">
@@ -115,23 +113,7 @@ function ProductDetails({
         / <span>{categoryName(p.subcategoryId, categories)}</span>
       </nav>
       <div className="grid gap-10 md:grid-cols-2">
-        <div>
-          <ProductImage product={p} index={active} className="rounded-lg" />
-          {thumbs > 1 && (
-            <div className="mt-3 grid grid-cols-5 gap-2">
-              {p.images.map((_, i) => (
-                <button
-                  key={i}
-                  onClick={() => setActive(i)}
-                  aria-label={`Foto ${i + 1}`}
-                  className={`overflow-hidden rounded-md border-2 ${i === active ? "border-primary" : "border-transparent"}`}
-                >
-                  <ProductImage product={p} index={i} />
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
+        <ProductGallery product={p} />
         <div>
           <p className="eyebrow">
             {categoryName(p.groupId, categories)} · {categoryName(p.subcategoryId, categories)}

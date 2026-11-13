@@ -33,7 +33,7 @@ function Sobre() {
         ).map(([k, v]) => (
           <div key={k}>
             <dt className="font-semibold">{k}</dt>
-            <dd className="text-muted-foreground">{v ?? pending}</dd>
+            <dd className="whitespace-pre-line text-muted-foreground">{v ?? pending}</dd>
           </div>
         ))}
       </dl>

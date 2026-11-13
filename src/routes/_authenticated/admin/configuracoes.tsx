@@ -5,6 +5,13 @@ import { toast } from "sonner";
 import { adminGetSettings, adminUpdateSettings } from "@/data/admin.functions";
 import { AdminShell, AdminLoading, AdminError } from "@/components/admin/AdminShell";
 import { PasswordForm } from "@/components/admin/PasswordForm";
+import { OpeningHoursFields } from "@/components/admin/OpeningHoursFields";
+import {
+  defaultOpeningHours,
+  formatOpeningHours,
+  parseOpeningHours,
+  validateOpeningHours,
+} from "@/lib/opening-hours";
 
 export const Route = createFileRoute("/_authenticated/admin/configuracoes")({
   head: () => ({
@@ -37,10 +44,17 @@ function AdminSettings() {
   const settings = useQuery({ queryKey: ["admin", "settings"], queryFn: () => adminGetSettings() });
   const [form, setForm] = useState(EMPTY);
   const [busy, setBusy] = useState(false);
+  const [hours, setHours] = useState(defaultOpeningHours);
+  const [hoursChanged, setHoursChanged] = useState(false);
+  const [legacyHours, setLegacyHours] = useState("");
 
   useEffect(() => {
     const s = settings.data;
     if (!s) return;
+    const parsed = parseOpeningHours(s.opening_hours ?? "");
+    setHours(parsed ?? defaultOpeningHours());
+    setHoursChanged(false);
+    setLegacyHours(!parsed ? (s.opening_hours ?? "") : "");
     setForm({
       storeName: s.store_name,
       subtitle: s.subtitle,
@@ -59,9 +73,19 @@ function AdminSettings() {
 
   const save = async (e: FormEvent) => {
     e.preventDefault();
+    const hoursError = validateOpeningHours(hours);
+    if ((!legacyHours || hoursChanged) && hoursError) {
+      toast.error(hoursError);
+      return;
+    }
     setBusy(true);
     try {
-      await adminUpdateSettings({ data: form });
+      await adminUpdateSettings({
+        data: {
+          ...form,
+          openingHours: legacyHours && !hoursChanged ? legacyHours : formatOpeningHours(hours),
+        },
+      });
       await queryClient.invalidateQueries({ queryKey: ["catalog"] });
       queryClient.invalidateQueries({ queryKey: ["admin", "settings"] });
       toast.success("Configurações salvas.");
@@ -132,15 +156,29 @@ function AdminSettings() {
           <span className={labelCls}>Endereço (opcional)</span>
           <input className={field} value={form.address} onChange={set("address")} />
         </label>
-        <label className="block">
-          <span className={labelCls}>Horário de funcionamento (opcional)</span>
-          <input
-            className={field}
-            value={form.openingHours}
-            onChange={set("openingHours")}
-            placeholder="Seg a sáb, 10h às 19h"
-          />
-        </label>
+        {legacyHours && !hoursChanged && (
+          <div className="rounded-md bg-secondary p-3 text-sm">
+            <p className="whitespace-pre-line">Horário salvo: {legacyHours}</p>
+            <p className="mt-2">
+              Confira os horários sugeridos abaixo. Para substituir o horário atual, use o botão ou
+              altere algum dia e salve as configurações.
+            </p>
+            <button
+              type="button"
+              onClick={() => setHoursChanged(true)}
+              className="mt-2 min-h-11 font-semibold text-primary underline"
+            >
+              Usar horários por dia
+            </button>
+          </div>
+        )}
+        <OpeningHoursFields
+          days={hours}
+          onChange={(next) => {
+            setHours(next);
+            setHoursChanged(true);
+          }}
+        />
         <label className="block">
           <span className={labelCls}>Como funciona a retirada (opcional)</span>
           <textarea

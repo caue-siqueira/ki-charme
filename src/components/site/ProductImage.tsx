@@ -23,6 +23,7 @@ export function ProductImage({
           src={img.url}
           alt={img.alt}
           loading="lazy"
+          draggable={false}
           onError={() => setFailedUrl(img.url)}
           className="h-full w-full object-cover"
         />
