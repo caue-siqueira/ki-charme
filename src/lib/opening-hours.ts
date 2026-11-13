@@ -55,3 +55,40 @@ export function parseOpeningHours(value: string): DayHours[] | null {
   }
   return validateOpeningHours(days) ? null : days;
 }
+
+const SHORT_WEEK_DAYS = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"] as const;
+
+/** Agrupa horários iguais para exibição, preservando a edição diária no painel. */
+export function summarizeOpeningHours(value: string): string {
+  const days = parseOpeningHours(value);
+  if (!days) return value;
+
+  const groups = new Map<string, { day: DayHours; indexes: number[] }>();
+  days.forEach((day, index) => {
+    const key = day.open ? `${day.from}-${day.to}` : "closed";
+    const group = groups.get(key);
+    if (group) group.indexes.push(index);
+    else groups.set(key, { day, indexes: [index] });
+  });
+
+  return Array.from(groups.values(), ({ day, indexes }) => {
+    const ranges: string[] = [];
+    let start = indexes[0]!;
+    let end = start;
+    const appendRange = () =>
+      ranges.push(
+        start === end
+          ? SHORT_WEEK_DAYS[start]!
+          : `${SHORT_WEEK_DAYS[start]} a ${SHORT_WEEK_DAYS[end]}`,
+      );
+    for (const index of indexes.slice(1)) {
+      if (index === end + 1) end = index;
+      else {
+        appendRange();
+        start = end = index;
+      }
+    }
+    appendRange();
+    return `${ranges.join(", ")}: ${day.open ? `${day.from} às ${day.to}` : "Fechado"}`;
+  }).join("\n");
+}

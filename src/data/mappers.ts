@@ -1,6 +1,7 @@
 // Converte as linhas do banco nos tipos que a interface usa.
 import type { Database } from "@/integrations/supabase/types";
 import { photoUrl } from "@/lib/media";
+import { summarizeOpeningHours } from "@/lib/opening-hours";
 import type {
   CategoryGroup,
   Product,
@@ -120,7 +121,7 @@ export function buildSettings(row: SettingsRow | null): StoreSettings {
     whatsappNumber: row.whatsapp_number,
     instagram: row.instagram_url ?? undefined,
     address: row.address ?? undefined,
-    hours: row.opening_hours ?? undefined,
+    hours: row.opening_hours == null ? undefined : summarizeOpeningHours(row.opening_hours),
     exchangePolicy: row.exchange_policy ?? undefined,
     pickupInfo: row.pickup_information ?? undefined,
     about: row.about ?? DEFAULT_SETTINGS.about,

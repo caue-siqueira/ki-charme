@@ -91,9 +91,9 @@ describe("Salvar horários no painel e atualizar o rodapé", () => {
       expect(server.update.mock.calls[0]![0].data.openingHours).toBe(
         formatOpeningHours(defaultOpeningHours()),
       );
-      expect(footer).toHaveTextContent("Segunda-feira: 09:00 às 18:00");
-      expect(footer).toHaveTextContent("Sábado: 09:00 às 13:00");
-      expect(footer).toHaveTextContent("Domingo: Fechado");
+      expect(footer).toHaveTextContent("Seg a Sex: 09:00 às 18:00");
+      expect(footer).toHaveTextContent("Sáb: 09:00 às 13:00");
+      expect(footer).toHaveTextContent("Dom: Fechado");
       expect(footer).not.toHaveTextContent("18:30");
     } finally {
       await act(async () => root.unmount());
